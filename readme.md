@@ -1,4 +1,6 @@
 
+![microbi](http://nzonbi.github.io/microbi/img/microbi.png)
+
 # microbi.js
 v0.1.0
 
