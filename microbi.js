@@ -1,10 +1,12 @@
-var http = require('http')
-var url = require('url')
-var fs = require('fs');
-var path = require('path')
+var http = require( 'http' )
+var url = require( 'url' )
+var fs = require( 'fs' );
+var path = require( 'path' )
+
+var contentType = require( './contentType.js' )
 
 
-// module.exports =
+
 
 
 
@@ -12,13 +14,18 @@ var path = require('path')
 var api = {}
 
 
+
+
+/**
+ * Request responder function
+ */
 var onRequest = function ( request, response ) {
 
   var method = request.method
   var reqUrl = url.parse( request.url, true )
 
   var pathname = reqUrl.pathname
-
+  console.log('pathname', pathname)
 
   // validate path
   if ( ! validatePath( pathname ) ) {
@@ -26,15 +33,14 @@ var onRequest = function ( request, response ) {
     return
   }
 
-  // serve file
-  var fileToServe = ''
-  
-  if ( pathname == '/' ) {
-    fileToServe = 'index.html'
-  } else {
-    fileToServe = '.' + pathname
+  // static server only allows GET requests
+  if (method != 'GET') {
+      respond405( response )
+      return  
   }
 
+  // for "/" path, serve index.html
+  var fileToServe = pathname == '/' ? 'index.html' : '.' + pathname
 
 
   // serve file
@@ -47,7 +53,8 @@ var onRequest = function ( request, response ) {
   })
 
   // set content type header
-  setContentType( fileToServe, response )
+  var ext = path.extname( fileToServe )
+  response.writeHead( 200, { 'Content-Type': contentType( ext ) } );
 
   readStream.pipe( response )
   readStream.on( 'end', function() {
@@ -95,58 +102,39 @@ if ( ! module.parent ) server()
 
 
 
-// regexp to validate file paths
+// The path for files to serve, must match this regex
 var PATH_REGEX = /^[\./_\-\d\w]*$/
+
+// The path isn't allowed to contain ".." or "/."
+var DISALLOWED_REGEX = /(\.\.)|(\/\.)/
 
 /**
  * Validate the path
  */
 function validatePath( path ) {
+  if ( DISALLOWED_REGEX.test( path ) ) return false
   return PATH_REGEX.test( path )
 }
 
+
+
 /**
- * Validate the path
+ * Emit a 404 response
  */
 function respond404( response ) {
   response.writeHead( 404 )
   response.end( '404 Not found.' )
-  console.log('404 not found')
 }
 
-
-// content types
-var contentTypes = {
-  html: 'text/html',
-  txt: 'text/plain',
-  png: 'image/png',
-  js: 'application/x-javascript',
-  jpg: 'image/jpeg',
-  gif: 'image/gif',
-  css: 'text/css'
-}
 
 
 /**
- * Set the extension name
+ * Emit a 405 response: method not allowed
+ * 
+ * The static server only allows GET requests
  */
-function setContentType( pathname, response ) {
-  
-  console.log('## setContentType')
-  console.log('pathname', pathname)
-  
-  // remove the leading dot from the extension
-  var ext = path.extname( pathname )
-  
-  console.log( 'ext', ext )
-  
-  if ( ! ext ) {
-    response.writeHead(200, {'Content-Type': 'text/plain'});
-    return
-  }
-  // remove leading dot
-  ext = ext.substring( 1, ext )
-  
-  var contentType = contentTypes[ ext ]   
-  if ( ! contentType ) contentType = contentTypes[ 'txt' ]
+function respond405( response ) {
+  response.writeHead( 405 )
+  response.end( '405 Method not allowed.' )
 }
+
