@@ -4,6 +4,7 @@ var fs = require( 'fs' );
 var path = require( 'path' )
 
 var contentType = require( './contentType.js' )
+var router = require( './router.js' )
 
 
 
@@ -33,8 +34,12 @@ var onRequest = function ( request, response ) {
     return
   }
 
+  var routes = router.getRoutes( pathname, method )
+  console.log( 'routes', routes )
+
+
   // static server only allows GET requests
-  if (method != 'GET') {
+  if ( method != 'GET' ) {
       respond405( response )
       return  
   }
