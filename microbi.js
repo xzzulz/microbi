@@ -13,8 +13,8 @@ var router = require( './router.js' )
 
 // optionally define api methods
 var api = {}
-
-
+// default Api content type is txt
+var apiContentType = contentType( 'txt' )
 
 
 /**
@@ -34,14 +34,20 @@ var onRequest = function ( request, response ) {
     return
   }
 
-  var routes = router.getRoutes( pathname, method )
-  console.log( 'routes', routes )
+  var routeParts = router.getRoutes( pathname, method )
+  console.log( 'routes', routeParts )
 
+  var apiRoute = router.route( routeParts, api )
+  if ( apiRoute ) {
+    response.writeHead( 200, { 'Content-Type': apiContentType } );
+    response.end( apiRoute() )
+    return
+  }
 
   // static server only allows GET requests
   if ( method != 'GET' ) {
-      respond405( response )
-      return  
+    respond405( response )
+    return  
   }
 
   // for "/" path, serve index.html
@@ -65,42 +71,18 @@ var onRequest = function ( request, response ) {
   readStream.on( 'end', function() {
     response.end()
   })
-
-
-/*
-  var paths = pathname.split('/')
-  paths.shift()
-  if (paths[paths.length - 1] == "") paths.pop()
-  console.log('## paths', paths)
-*/
-
-
-
-/*
-  if (api[pathname])
-    api[pathname]()
-  else
-    serveFile(pathname)
-*/
-
 }
 
-var server = function() {
+
+
+
+exports.server = function() {
   http.createServer( onRequest ).listen( 55555, '127.0.0.1' );
   console.log( 'Server running at http://127.0.0.1:55555/' );
 }
 
-module.exports = {
-  server: server,
-  api: api
-}
-
-
-
 // run server if not being required from external file
 if ( ! module.parent ) server()
-
-
 
 
 
@@ -116,7 +98,7 @@ var DISALLOWED_REGEX = /(\.\.)|(\/\.)/
 /**
  * Validate the path
  */
-function validatePath( path ) {
+var validatePath = function( path ) {
   if ( DISALLOWED_REGEX.test( path ) ) return false
   return PATH_REGEX.test( path )
 }
@@ -126,7 +108,7 @@ function validatePath( path ) {
 /**
  * Emit a 404 response
  */
-function respond404( response ) {
+var respond404 = function( response ) {
   response.writeHead( 404 )
   response.end( '404 Not found.' )
 }
@@ -138,8 +120,25 @@ function respond404( response ) {
  * 
  * The static server only allows GET requests
  */
-function respond405( response ) {
+var respond405 = function( response ) {
   response.writeHead( 405 )
   response.end( '405 Method not allowed.' )
 }
 
+
+
+/**
+ * Set the api default content type
+ */
+exports.setApiContentType = function( ext ) {
+  apiContentType = contentType( ext )
+}
+
+
+
+/**
+ * Set the api object
+ */
+exports.setApi = function( apiOb ) {
+  api = apiOb
+}

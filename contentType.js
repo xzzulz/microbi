@@ -17,8 +17,8 @@ var contentTypes = {
  */
 module.exports = function getContentType( ext ) {
     
-  // remove the leading dot from the extension, then search
-  // for a content type. If there isn't one, use text/lain
+  // remove leading dot from extension, then search
+  // for a content type. If there isn't one, use text/plain
   return contentTypes[ ext.replace( '.', '' ) ] || contentTypes[ 'txt' ]
 
 }
