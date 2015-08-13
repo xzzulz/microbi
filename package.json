@@ -15,11 +15,14 @@
     "microbi": "./cli.js"
   },
   "keywords": [
-    "server",
+    "http server",
+    "web server",
     "api",
-    "http",
-    "api",
-    "static"
+    "api server",
+    "static server",
+    "web framework",
+    "api framework",
+    "single page apps"
   ],
   "author": "nzonbi",
   "license": "MIT",
