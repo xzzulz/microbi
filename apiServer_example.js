@@ -42,7 +42,7 @@
 
 // The first step is to require microbi from the file
 // update the path to macth the microbi file location
-var microbi = require('microbi')
+var microbi = require('./microbi.js')
 
 
 

@@ -13,8 +13,8 @@ var http = require( 'http' )
 var path = require( 'path' )
 var url = require( 'url' )
 
-var contentType = require( './contentType.js' )
-var router = require( './router.js' )
+var contentType = require( './lib/contentType.js' )
+var router = require( './lib/router.js' )
 
 
 

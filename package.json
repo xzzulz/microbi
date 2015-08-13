@@ -5,14 +5,14 @@
   "main": "microbi.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node microbi.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nzonbi/microbi.git"
   },
   "bin": {
-    "microbi": "./cli.js"
+    "microbi": "bin/microbi"
   },
   "keywords": [
     "http server",
