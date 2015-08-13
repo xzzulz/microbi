@@ -64,6 +64,9 @@ var onRequest = function( request, response ) {
 
   // request pathname (i.e: "/stuff/item")
   var pathname = reqUrl.pathname
+  
+  // requests query parameters object
+  var queryParameters = reqUrl.query
 
   // validate path. If the path is invalid, answer with 404.
   // Allowed characters are letters, numbers, dots, minus, underscores,
@@ -91,8 +94,19 @@ var onRequest = function( request, response ) {
   // Then the responder function ends.
   var apiRoute = router.route( routeParts, api )
   if ( apiRoute ) {
-    response.writeHead( 200, { 'Content-Type': apiContentType } );
-    response.end( apiRoute() )
+    
+    console.log( 'queryParameters', queryParameters )
+    var requestBody = ''
+    request.setEncoding( 'utf8' )
+    request.on( 'data', function( data ) {
+      console.log( 'data', data )
+      requestBody += data
+    })
+    request.on( 'end', function() {
+      response.writeHead( 200, { 'Content-Type': apiContentType } );
+      response.end( apiRoute( queryParameters, requestBody ) )
+    })
+
     return
   }
 

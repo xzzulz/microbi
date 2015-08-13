@@ -10,19 +10,19 @@ microbi.setApiContentType( 'txt' )
 
 api.user = {}
 
-api.user.GET = function() {
+api.user.GET = function( queryParameters ) {
   return 'api.user.GET'
 }
 
-api.user.POST = function() {
+api.user.POST = function( queryParameters, requestBody ) {
   return 'api.user.POST'
 }
 
-api.user.DELETE = function() {
+api.user.DELETE = function( queryParameters ) {
   return 'api.user.DELETE'
 }
 
-api.user.PUT = function() {
+api.user.PUT = function( queryParameters, requestBody ) {
   return 'api.user.PUT'
 }
 
