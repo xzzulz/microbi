@@ -1,6 +1,6 @@
 {
   "name": "microbi",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "http server and api server",
   "main": "microbi.js",
   "scripts": {
@@ -11,7 +11,9 @@
     "type": "git",
     "url": "git+https://github.com/nzonbi/microbi.git"
   },
-  "bin" : { "microbi" : "./cli.js" },
+  "bin": {
+    "microbi": "./cli.js"
+  },
   "keywords": [
     "server",
     "api",
