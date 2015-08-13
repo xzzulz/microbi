@@ -94,17 +94,19 @@ var onRequest = function( request, response ) {
   // Then the responder function ends.
   var apiRoute = router.route( routeParts, api )
   if ( apiRoute ) {
-    
-    console.log( 'queryParameters', queryParameters )
+    // collect the whole body before answering
     var requestBody = ''
     request.setEncoding( 'utf8' )
     request.on( 'data', function( data ) {
-      console.log( 'data', data )
       requestBody += data
     })
+    // when the incoming message body is complete, call the defined
+    // api method for this request 
     request.on( 'end', function() {
       response.writeHead( 200, { 'Content-Type': apiContentType } );
-      response.end( apiRoute( queryParameters, requestBody ) )
+      // call the api method, passing as parameter the url object,
+      // and the incoming message body
+      response.end( apiRoute( reqUrl, requestBody ) )
     })
 
     return
