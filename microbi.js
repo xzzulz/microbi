@@ -30,7 +30,7 @@ var router = require( './router.js' )
 //     api.stuff.items.GET
 //
 // Note that the request method (GET in this case), is added as the last
-// property name. 
+// property name.
 // If the api object if left empty, (no properties added) then the server
 // will not match any api methods, and will work as a http static server only.
 var api = {}
@@ -45,15 +45,15 @@ var apiContentType = contentType( 'txt' )
 /**
  * Request responder function. This function is called on each
  * request to the server
- * 
+ *
  * This is the function that handles incoming requests to the server.
  * It does the next things:
  * - parses the url for incoming requests.
  * - verifies if there is an api request handler defined for that
  *   url. Executes it if there is one.
  * - If there is no api function, then it looks for a file that
- *   correspond to the requested url. 
- * - If a file is found, set the corresponding content type and serve
+ *   correspond to the requested url.
+ * - If a file is found, set the corresponding content type and serves
  *   the file.
  */
 var onRequest = function( request, response ) {
@@ -64,7 +64,6 @@ var onRequest = function( request, response ) {
 
   // request pathname (i.e: "/stuff/item")
   var pathname = reqUrl.pathname
-  console.log('pathname', pathname)
 
   // validate path. If the path is invalid, answer with 404.
   // Allowed characters are letters, numbers, dots, minus, underscores,
@@ -81,7 +80,6 @@ var onRequest = function( request, response ) {
   // is split to an array.The request method is added at the end:
   //     [ 'stuff', 'items', 'GET' ]
   var routeParts = router.getRoutes( pathname, method )
-  console.log( 'routes', routeParts )
 
   // Determine if the api object has a function defined for the
   // given path. For example, if the route parts are as the example
@@ -90,7 +88,7 @@ var onRequest = function( request, response ) {
   //     api.stuff.items.GET
   // If there is a method defined there, it is called, and what it returns
   // is the response for the request.
-  // Then the responder function ends. 
+  // Then the responder function ends.
   var apiRoute = router.route( routeParts, api )
   if ( apiRoute ) {
     response.writeHead( 200, { 'Content-Type': apiContentType } );
@@ -104,7 +102,7 @@ var onRequest = function( request, response ) {
   // GET request. If the request method is not GET, respond 405 and exit.
   if ( method != 'GET' ) {
     respond405( response )
-    return  
+    return
   }
 
   // If the requested path is "/", file to serve is "index.html"
@@ -154,7 +152,7 @@ var DISALLOWED_PATH_REGEX = /(\.\.)|(\/\.)/
 
 /**
  * Validate the path
- * 
+ *
  * Returns true if the path is valid. False otherwise.
  */
 var validatePath = function( path ) {
@@ -169,7 +167,6 @@ var validatePath = function( path ) {
  */
 var respond404 = function( response ) {
   response.writeHead( 404 )
-  fff()
   response.end( '404 Not found.' )
 }
 
