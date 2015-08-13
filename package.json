@@ -1,0 +1,28 @@
+{
+  "name": "microbi",
+  "version": "0.1.0",
+  "description": "http server and api server",
+  "main": "microbi.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nzonbi/microbi.git"
+  },
+  "bin" : { "microbi" : "./cli.js" },
+  "keywords": [
+    "server",
+    "api",
+    "http",
+    "api",
+    "static"
+  ],
+  "author": "nzonbi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nzonbi/microbi/issues"
+  },
+  "homepage": "https://github.com/nzonbi/microbi#readme"
+}
