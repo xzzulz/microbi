@@ -15,7 +15,7 @@ api.user.GET = function( reqUrl ) {
 }
 
 api.user.POST = function( reqUrl, requestBody ) {
-  return 'api.user.POST' + reqUrl + requestBody
+  return 'api.user.POST'
 }
 
 api.user.DELETE = function( reqUrl ) {
