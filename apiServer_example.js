@@ -4,7 +4,7 @@
 //
 // This is an example file for how to define api methods for
 // microbi.js. This file is not used by microbi. A file like this
-// is not required to run microbi as http server only, without 
+// is not required to run microbi as http server only, without
 // using the api functionality.
 //
 // How to use microbi as an api server
@@ -14,7 +14,7 @@
 // On it, define api routes and methods on an "api object".
 // Require and set up microbi from it, and run the file with node.
 //
-// To define an api for microbi, add properties and methods 
+// To define an api for microbi, add properties and methods
 // to a generic object, usually called "api", and refered as the
 // "api object" by microbi documentation. Pass that object
 // to the method microbi.setApi( api ).
@@ -57,9 +57,9 @@ microbi.setApi( api )
 // This defaults to text, so in this case the call is superfluous.
 microbi.setApiContentType( 'txt' )
 
-// define routes as a tree of properties 
+// define routes as a tree of properties
 api.stuff = {}
-api.stuff.items = {} 
+api.stuff.items = {}
 
 // this api function will be called on GET method with the url path:
 //    /stuff/items

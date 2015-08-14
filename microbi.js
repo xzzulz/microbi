@@ -71,7 +71,7 @@ var onRequest = function( request, response ) {
 
   // request pathname (i.e: "/stuff/item")
   var pathname = reqUrl.pathname
-  
+
   // requests query parameters object
   var queryParameters = reqUrl.query
 
@@ -93,7 +93,7 @@ var onRequest = function( request, response ) {
     // is split to an array.The request method is added at the end:
     //     [ 'stuff', 'items', 'GET' ]
     var routeParts = router.getRoutes( pathname, method )
-  
+
     // Determine if the api object has a function defined for the
     // given path. For example, if the route parts are as the example
     // just above, this will check the api object for the next properties
@@ -111,14 +111,14 @@ var onRequest = function( request, response ) {
         requestBody += data
       })
       // when the incoming message body is complete, call the defined
-      // api method for this request 
+      // api method for this request
       request.on( 'end', function() {
         response.writeHead( 200, { 'Content-Type': apiContentType } );
         // call the api method, passing as parameter the url object,
         // and the incoming message body
         response.end( apiRoute( reqUrl, requestBody ) )
       })
-  
+
       return
     }
   }
@@ -159,7 +159,7 @@ var onRequest = function( request, response ) {
 
 /**
  * Starts the server.
- * 
+ *
  * Port and ip are taken from the first available of these:
  * - function parameters
  * - command line parameters
@@ -167,7 +167,7 @@ var onRequest = function( request, response ) {
  */
 var server = function( port, ip ) {
   port = port || process.argv[ 2 ] || 8080
-  ip = ip || process.argv[ 3 ] || '127.0.0.1' 
+  ip = ip || process.argv[ 3 ] || '127.0.0.1'
   http.createServer( onRequest ).listen( port, ip );
   console.log( 'Server running at ip: ' + ip + ':' + port );
 }
@@ -248,7 +248,7 @@ exports.setApi = function( apiOb ) {
 
 /**
  * Disable the static file server.
- * This allows to use microbi as an api server only. 
+ * This allows to use microbi as an api server only.
  * This is for the cases when microbi is used as an api server
  * only, and the static server is not needed.
  */
