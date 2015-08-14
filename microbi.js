@@ -143,9 +143,11 @@ var onRequest = function( request, response ) {
 
 
 
-var server = function() {
-  http.createServer( onRequest ).listen( 55555, '127.0.0.1' );
-  console.log( 'Server running at http://127.0.0.1:55555/' );
+var server = function( port, ip ) {
+  port = port || 55555
+  ip = ip || '127.0.0.1' 
+  http.createServer( onRequest ).listen( port, ip );
+  console.log( 'Server running at ip: ' + ip + ':' + port );
 }
 
 exports.server = server
