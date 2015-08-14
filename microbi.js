@@ -4,7 +4,7 @@
 //
 ///////////////////////////////////////////////////////////
 //
-// http server and Api server for Node.js
+// Api server and http server for Node.js
 //
 //
 
@@ -13,7 +13,9 @@ var http = require( 'http' )
 var path = require( 'path' )
 var url = require( 'url' )
 
+// a small module for getting mime types
 var contentType = require( './lib/contentType.js' )
+// a couple of functions to route url paths
 var router = require( './lib/router.js' )
 
 
@@ -161,10 +163,10 @@ var onRequest = function( request, response ) {
  * Port and ip are taken from the first available of these:
  * - function parameters
  * - command line parameters
- * - defaults to 127.0.0.1:55555
+ * - defaults to 127.0.0.1:8080
  */
 var server = function( port, ip ) {
-  port = port || process.argv[ 2 ] || 55555
+  port = port || process.argv[ 2 ] || 8080
   ip = ip || process.argv[ 3 ] || '127.0.0.1' 
   http.createServer( onRequest ).listen( port, ip );
   console.log( 'Server running at ip: ' + ip + ':' + port );
