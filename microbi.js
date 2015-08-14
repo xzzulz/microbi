@@ -33,13 +33,18 @@ var router = require( './lib/router.js' )
 // property name.
 // If the api object if left empty, (no properties added) then the server
 // will not match any api methods, and will work as a http static server only.
-var api = {}
+var api = null
 
 // default Api content type is txt
 // This is used to set the mime type for api requests.
 // There is a function to set this.
 var apiContentType = contentType( 'txt' )
 
+// Flag to enable or disable the static http server.
+// This can be set to false to use microbi as an api server only.
+// To use as an api server only, define an api from an external file,
+// and use the provided method to set this flag to false.
+var staticServer = true
 
 
 /**
@@ -77,40 +82,48 @@ var onRequest = function( request, response ) {
     return
   }
 
-  // Split the url paths. Used to search for api methods.
-  // For example, the path:
-  //     stuff/items
-  // is split to an array.The request method is added at the end:
-  //     [ 'stuff', 'items', 'GET' ]
-  var routeParts = router.getRoutes( pathname, method )
-
-  // Determine if the api object has a function defined for the
-  // given path. For example, if the route parts are as the example
-  // just above, this will check the api object for the next properties
-  // tree:
-  //     api.stuff.items.GET
-  // If there is a method defined there, it is called, and what it returns
-  // is the response for the request.
-  // Then the responder function ends.
-  var apiRoute = router.route( routeParts, api )
-  if ( apiRoute ) {
-    // collect the whole body before answering
-    var requestBody = ''
-    request.setEncoding( 'utf8' )
-    request.on( 'data', function( data ) {
-      requestBody += data
-    })
-    // when the incoming message body is complete, call the defined
-    // api method for this request 
-    request.on( 'end', function() {
-      response.writeHead( 200, { 'Content-Type': apiContentType } );
-      // call the api method, passing as parameter the url object,
-      // and the incoming message body
-      response.end( apiRoute( reqUrl, requestBody ) )
-    })
-
-    return
+  // this section handles api request.
+  // Only used if there is an api defined.
+  if ( api ) {
+    // Split the url paths. Used to search for api methods.
+    // For example, the path:
+    //     stuff/items
+    // is split to an array.The request method is added at the end:
+    //     [ 'stuff', 'items', 'GET' ]
+    var routeParts = router.getRoutes( pathname, method )
+  
+    // Determine if the api object has a function defined for the
+    // given path. For example, if the route parts are as the example
+    // just above, this will check the api object for the next properties
+    // tree:
+    //     api.stuff.items.GET
+    // If there is a method defined there, it is called, and what it returns
+    // is the response for the request.
+    // Then the responder function ends.
+    var apiRoute = router.route( routeParts, api )
+    if ( apiRoute ) {
+      // collect the whole body before answering
+      var requestBody = ''
+      request.setEncoding( 'utf8' )
+      request.on( 'data', function( data ) {
+        requestBody += data
+      })
+      // when the incoming message body is complete, call the defined
+      // api method for this request 
+      request.on( 'end', function() {
+        response.writeHead( 200, { 'Content-Type': apiContentType } );
+        // call the api method, passing as parameter the url object,
+        // and the incoming message body
+        response.end( apiRoute( reqUrl, requestBody ) )
+      })
+  
+      return
+    }
   }
+
+  // If the static server has been disabled, don't look for files to
+  // serve. just exit now with a 404 response.
+  if ( ! staticServer ) respond404( response )
 
   // If the responder function reaches to here, it means that there is no
   // api method to server. What is left is to check if there is a file
@@ -227,4 +240,16 @@ exports.setApiContentType = function( ext ) {
  */
 exports.setApi = function( apiOb ) {
   api = apiOb
+}
+
+
+
+/**
+ * Disable the static file server.
+ * This allows to use microbi as an api server only. 
+ * This is for the cases when microbi is used as an api server
+ * only, and the static server is not needed.
+ */
+exports.disableStaticServer = function() {
+  staticServer = false
 }
