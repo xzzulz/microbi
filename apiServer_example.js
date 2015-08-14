@@ -64,19 +64,19 @@ api.stuff.items = {}
 // this api function will be called on GET method with the url path:
 //    /stuff/items
 api.stuff.items.GET = function( reqUrl ) {
-  return 'Hello World! - api.stuff.items.GET'
+  return 'Hello World! - stuff/items GET'
 }
 
 api.stuff.items.POST = function( reqUrl, requestBody ) {
-  return 'Hello World! - api.stuff.items.POST'
+  return 'Hello World! - stuff/items POST'
 }
 
 api.stuff.items.DELETE = function( reqUrl ) {
-  return 'Hello World! - api.stuff.items.DELETE'
+  return 'Hello World! - stuff/items DELETE'
 }
 
 api.stuff.items.PUT = function( reqUrl, requestBody ) {
-  return 'Hello World! - api.stuff.items.PUT'
+  return 'Hello World! - stuff/items PUT'
 }
 
 // start the server
