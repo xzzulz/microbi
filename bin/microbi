@@ -2,8 +2,4 @@
 
 var microbi = require('../microbi.js')
 
-var port = process.argv[ 2 ]
-var ip = process.argv[ 3 ]
-
-// start the server
-microbi.server( port, ip )
+microbi.server()

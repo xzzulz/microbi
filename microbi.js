@@ -142,17 +142,27 @@ var onRequest = function( request, response ) {
 
 
 
-
+/**
+ * Starts the server.
+ * 
+ * Port and ip are taken from the first available of these:
+ * - function parameters
+ * - command line parameters
+ * - defaults to 127.0.0.1:55555
+ */
 var server = function( port, ip ) {
-  port = port || 55555
-  ip = ip || '127.0.0.1' 
+  port = port || process.argv[ 2 ] || 55555
+  ip = ip || process.argv[ 3 ] || '127.0.0.1' 
   http.createServer( onRequest ).listen( port, ip );
   console.log( 'Server running at ip: ' + ip + ':' + port );
 }
 
+// export the server function, for use in external scripts
 exports.server = server
 
-// run server if not being required from external file
+// run server if not being required from external file.
+// When the microbi file is being run directly with node:
+//    node microbi.js
 if ( ! module.parent ) server()
 
 
