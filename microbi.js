@@ -10,6 +10,7 @@
 
 var fs = require( 'fs' );
 var http = require( 'http' )
+var https = require( 'https' )
 var path = require( 'path' )
 var url = require( 'url' )
 
@@ -160,6 +161,7 @@ var onRequest = function( request, response ) {
 /**
  * Starts the server.
  *
+ * Parameters:
  * Port and ip are taken from the first available of these:
  * - function parameters
  * - command line parameters
@@ -181,6 +183,28 @@ exports.server = server
 if ( ! module.parent ) server()
 
 
+
+
+/**
+ * Starts https server.
+ *
+ * Parameters:
+ * Options is an object with key and certificate, as described
+ * in node api docs for https.createServer method.
+ * Port and ip are taken from the first available of these:
+ * - function parameters
+ * - command line parameters
+ * - defaults to 127.0.0.1:8080
+ */
+var httpsServer = function( options, port, ip ) {
+  port = port || process.argv[ 2 ] || 8080
+  ip = ip || process.argv[ 3 ] || '127.0.0.1'
+  https.createServer( options, onRequest ).listen( port, ip );
+  console.log( 'Https server running at ip: ' + ip + ':' + port );
+}
+
+// export the server function, for use in external scripts
+exports.httpsServer = httpsServer
 
 
 
