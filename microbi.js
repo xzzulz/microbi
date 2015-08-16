@@ -103,8 +103,21 @@ var onRequest = function( request, response ) {
     // If there is a method defined there, it is called, and what it returns
     // is the response for the request.
     // Then the responder function ends.
-    var apiRoute = router.route( routeParts, api )
-    if ( apiRoute ) {
+    var apiFunction = router.route( routeParts, api )
+    
+    // Api functions can be called in two ways. The most common way, passes
+    // the request url object, and full message body as parameters. the
+    // "stream" way, passes the request and response streams, from the
+    // server request callback function.
+    // If the apiFunction has a property "stream" set to true, then call
+    // it with the request and response streams as parameters.
+    // When defining an api, set the "stream" flag to true on the function,
+    // if the stream parameters are needed.
+    if ( apiFunction && apiFunction.stream ) {
+      apiFunction( request, response )
+    // If the "stream" property is not set, call the function with the
+    // request url and the complete request message body as parameters.
+    } else if ( apiFunction ) {
       // collect the whole body before answering
       var requestBody = ''
       request.setEncoding( 'utf8' )
@@ -117,7 +130,7 @@ var onRequest = function( request, response ) {
         response.writeHead( 200, { 'Content-Type': apiContentType } );
         // call the api method, passing as parameter the url object,
         // and the incoming message body
-        response.end( apiRoute( reqUrl, requestBody ) )
+        response.end( apiFunction( reqUrl, requestBody ) )
       })
 
       return
