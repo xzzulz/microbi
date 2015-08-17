@@ -18,7 +18,13 @@ license (MIT)
 
 The source code has detailed comments.
 
-### Static server
+Microbi has two ways to use: 
+- Installed globally, the microbi command can be used to launch a
+  static server on any folder.
+- Use `require('microbi')` and define an api to use as an api server
+  and static server.     
+
+### Global command: static server
 
 Install globally
 
@@ -41,7 +47,7 @@ are port: 8080, ip: 127.0.0.1
 
 ### Api server
 
-To use as an api server, create a script file where you define your
+To use as an api server, create a script file where you define an
 api, and launch the server. Require microbi on it. An example Api
 script is provided:
 
@@ -115,4 +121,39 @@ will be the server response.
 ####     microbi.disableStaticServer()
 call this method once to disable the static server, and use only the api
 server functionality.
+
+### Api functions
+
+Defined api function:
+```javascript
+     api.stuff.items.POST = function( reqUrl, requestBody ) {
+       return 'Hello World!'
+     }
+```
+ get the following parameters:
+ 
+- reqUrl: An url object returned by Node url.parse method
+- requestBody: The complete request body message, if there is one.
+  Note that some http methods (GET, DELETE) don't have request body.
+  
+#### Alternate option: Using streams in api function
+
+There is the option to get Node stream objects as parameter on api function.
+For this, set a "stream" flags directly on the api function:
+```javascript
+     api.stuff.items.POST.stream = true
+```
+Api functions that have this flag set, will get not get the reqUrl and
+requestBody as parameter. Instead these api functions will get the
+request and response stream objects as follows:
+```javascript
+     api.stuff.items.POST = function( request, response ) {
+       return 'Hello World!'
+     }
+```
+`request` and `response` are the same parameters that nodejs http server
+callback functions gets on each request. Parameter `request` is an instance
+of Node http.IncomingMessage, and `response` is an instance of Node
+http.ServerResponse. See: https://nodejs.org/api/http.html#http_event_request
+
 
