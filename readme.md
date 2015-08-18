@@ -86,9 +86,9 @@ For example:
 
 Run with node. Then pointing the browser on the path:
 
-     theHost/stuff/items
+     someHost/stuff/items
 
-For Get request methods, it will server what the function returns:
+For Get request methods, it will serve what the function returns:
 
      Hello World!
 
@@ -112,15 +112,19 @@ For example, pass "txt" to set content type to "text/plain"
 Sets the api object to use. the api object is a generic object containing
 routes and api functions. url paths will be mapped to functions in this
 object. For example, the path:
-     www.exampleHost.com/user/items
+
+     exampleHost/user/items
+
 for a GET request, will be mapped to the next function on the api object:
+
      api.user.items.GET
+
 If there is a function there, it will be called, and whatever it returns
 will be the server response.
 
 ####     microbi.disableStaticServer()
-call this method once to disable the static server, and use only the api
-server functionality.
+Call this method once to disable the static server, and use only the api
+server functionality. Intended to be called once at server startup.
 
 ### Api functions
 
