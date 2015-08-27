@@ -18,11 +18,11 @@ license (MIT)
 
 The source code has detailed comments.
 
-Microbi has two ways to use: 
+Microbi has two ways to use:
 - Installed globally, the microbi command can be used to launch a
   static server on any folder.
 - Use `require('microbi')` and define an api to use as an api server
-  and static server.     
+  and static server.
 
 ### Global command: static server
 
@@ -135,14 +135,14 @@ Defined api function:
      }
 ```
  get the following parameters:
- 
+
 - reqUrl: An url object returned by Node url.parse method
 - requestBody: The complete request body message, if there is one.
   Note that some http methods (GET, DELETE) don't have request body.
-  
-#### Alternate option: Using streams in api function
 
-There is the option to get Node stream objects as parameter on api function.
+#### Alternate options: Using streams on api functions
+
+There is the option to get Node stream objects as parameters on api functions.
 For this, set a "stream" flags directly on the api function:
 ```javascript
      api.stuff.items.POST.stream = true
@@ -159,5 +159,3 @@ request and response stream objects as follows:
 callback functions gets on each request. Parameter `request` is an instance
 of Node http.IncomingMessage, and `response` is an instance of Node
 http.ServerResponse. See: https://nodejs.org/api/http.html#http_event_request
-
-
