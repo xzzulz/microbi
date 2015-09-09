@@ -13,9 +13,8 @@ var http = require( 'http' )
 var https = require( 'https' )
 var path = require( 'path' )
 var url = require( 'url' )
+var mime = require( 'mimemap' ).map
 
-// a small module for getting mime types
-var contentType = require( './lib/contentType.js' )
 // a couple of functions to route url paths
 var router = require( './lib/router.js' )
 
@@ -41,7 +40,7 @@ var api = null
 // default Api content type is txt
 // This is used to set the mime type for api requests.
 // There is a function to set this.
-var apiContentType = contentType( 'txt' )
+var apiContentType = mime.txt
 
 // Flag to enable or disable the static http server.
 // This can be set to false to use microbi as an api server only.
@@ -104,7 +103,7 @@ var onRequest = function( request, response ) {
     // is the response for the request.
     // Then the responder function ends.
     var apiFunction = router.route( routeParts, api )
-    
+
     // Api functions can be called in two ways. The most common way, passes
     // the request url object, and full message body as parameters. the
     // "stream" way, passes the request and response streams, from the
@@ -160,8 +159,8 @@ var onRequest = function( request, response ) {
   })
 
   // set content type header based on the file termination
-  var ext = path.extname( fileToServe )
-  response.writeHead( 200, { 'Content-Type': contentType( ext ) } );
+  var ext = path.extname( fileToServe ).replace('.', '')
+  response.writeHead( 200, { 'Content-Type': mime[ext] } );
   // connect the file read stream to the response stream, to serve the file
   readStream.pipe( response )
   readStream.on( 'end', function() {
@@ -268,7 +267,7 @@ var respond405 = function( response ) {
  * termination. This is only for Api requests
  */
 exports.setApiContentType = function( ext ) {
-  apiContentType = contentType( ext )
+  apiContentType = mime[ext]
 }
 
 
