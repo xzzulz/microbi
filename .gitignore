@@ -1,4 +1,4 @@
-.settings
 .npmignore
+node_modules
 web
 webk
