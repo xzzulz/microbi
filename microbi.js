@@ -66,62 +66,37 @@ var staticServer = true
 var onRequest = function( request, response ) {
 
   // get request method (GET, POST, PUT, etc) and url
-  var method = request.method
-  var reqUrl = url.parse( request.url, true )
+  var urlObj = url.parse( request.url, true )
 
-  // request pathname (i.e: "/stuff/item")
-  var pathname = reqUrl.pathname
+  // collect request data into an object
+  requestInfo = {
+    method: request.method,    // "GET", "POST", etc
+    pathname: urlObj.pathname, // request pathname (i.e: "/stuff/item")
+    queryParameters: urlObj.query, // url params as key:values in an object
+    body: null, // the request body, unknown for now
+  }
 
-  // requests query parameters object
-  var queryParameters = reqUrl.query
-
-  // validate path. If the path is invalid, answer with 404.
-  // Allowed characters are letters, numbers, dots, minus, underscores,
-  // and slashes "/"
-  // Two consecutive dots are not allowed.
-  if ( ! validatePath( pathname ) ) {
+  if ( ! validatePath( requestInfo.pathname ) ) {
     respond404( response )
     return
   }
 
+
   // this section handles api request.
   // Only used if there is an api defined.
   if ( api ) {
-    // Split the url paths. Used to search for api methods.
-    // For example, the path:
-    //     stuff/items
-    // is split to an array.The request method is added at the end:
-    //     [ 'stuff', 'items', 'GET' ]
-    var routeParts = router.getRoutes( pathname, method )
 
-    // Determine if the api object has a function defined for the
-    // given path. For example, if the route parts are as the example
-    // just above, this will check the api object for the next properties
-    // tree:
-    //     api.stuff.items.GET
-    // If there is a method defined there, it is called, and what it returns
-    // is the response for the request.
-    // Then the responder function ends.
-    var apiFunction = router.route( routeParts, api )
+    var apiOp = router.getOp( requestInfo, api )
 
-    // Api functions can be called in two ways. The most common way, passes
-    // the request url object, and full message body as parameters. the
-    // "stream" way, passes the request and response streams, from the
-    // server request callback function.
-    // If the apiFunction has a property "stream" set to true, then call
-    // it with the request and response streams as parameters.
-    // When defining an api, set the "stream" flag to true on the function,
-    // if the stream parameters are needed.
-    if ( apiFunction && apiFunction.stream ) {
-      apiFunction( request, response )
+    if ( apiOp && apiOp.stream ) {
+      apiOp.fn( request, response )
     // If the "stream" property is not set, call the function with the
     // request url and the complete request message body as parameters.
-    } else if ( apiFunction ) {
+    } else if ( apiOp ) {
       // collect the whole body before answering
-      var requestBody = ''
       request.setEncoding( 'utf8' )
       request.on( 'data', function( data ) {
-        requestBody += data
+        requestInfo.body += data
       })
       // when the incoming message body is complete, call the defined
       // api method for this request
@@ -129,7 +104,7 @@ var onRequest = function( request, response ) {
         response.writeHead( 200, { 'Content-Type': apiContentType } );
         // call the api method, passing as parameter the url object,
         // and the incoming message body
-        response.end( apiFunction( reqUrl, requestBody ) )
+        response.end( apiOp.fn( requestInfo ) )
       })
 
       return
@@ -138,33 +113,40 @@ var onRequest = function( request, response ) {
 
   // If the static server has been disabled, don't look for files to
   // serve. just exit now with a 404 response.
-  if ( ! staticServer ) respond404( response )
+  if ( ! staticServer ) {
+    respond404( response )
+    return
+  }
 
   // If the responder function reaches to here, it means that there is no
   // api method to server. What is left is to check if there is a file
   // to serve at the given path. The static file server only allows for
   // GET request. If the request method is not GET, respond 405 and exit.
-  if ( method != 'GET' ) {
+  if ( requestInfo.method != 'GET' ) {
     respond405( response )
     return
   }
 
   // If the requested path is "/", file to serve is "index.html"
-  var fileToServe = pathname == '/' ? 'index.html' : '.' + pathname
+  var fileToServe = requestInfo.pathname == '/' ? 'index.html' : '.' +
+    requestInfo.pathname
 
   // serve file or respond 404 if there is no file
   var readStream = fs.createReadStream( fileToServe )
+
   readStream.on( 'error', function() {
     respond404( response )
   })
-
-  // set content type header based on the file termination
-  var ext = path.extname( fileToServe ).replace('.', '')
-  response.writeHead( 200, { 'Content-Type': mime[ext] } );
-  // connect the file read stream to the response stream, to serve the file
-  readStream.pipe( response )
-  readStream.on( 'end', function() {
-    response.end()
+  readStream.once( 'readable', function() {
+    var ext = path.extname( fileToServe ).replace('.', '')
+    response.writeHead( 200, {
+      'Content-Type': mime[ext] }
+    )
+    // connect the file read stream to the response stream, to serve the file
+    readStream.pipe( response )
+    readStream.on( 'end', function() {
+      response.end()
+    })
   })
 }
 
@@ -226,8 +208,8 @@ exports.httpsServer = httpsServer
 // sign and dots.
 var VALID_PATH_REGEX = /^[\./_\-\d\w]*$/
 
-// The path isn't allowed to contain ".." or "/."
-var DISALLOWED_PATH_REGEX = /(\.\.)|(\/\.)/
+// The path isn't allowed to contain ".." or "/." or "//"
+var DISALLOWED_PATH_REGEX = /(\.\.)|(\/\.)|(\/\/)/
 
 /**
  * Validate the path
