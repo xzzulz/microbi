@@ -127,6 +127,15 @@ var onRequest = function( request, response ) {
     return
   }
 
+  serveFile( requestInfo, request, response )
+
+}
+
+
+/**
+ *
+ */
+var serveFile = function( requestInfo, request, response ) {
   // If the requested path is "/", file to serve is "index.html"
   var fileToServe = requestInfo.pathname == '/' ? 'index.html' : '.' +
     requestInfo.pathname
@@ -135,10 +144,15 @@ var onRequest = function( request, response ) {
   var readStream = fs.createReadStream( fileToServe )
 
   readStream.on( 'error', function() {
-    respond404( response )
+    if ( isIndex( fileToServe ) )
+      respond404( response )
+    else {
+      appendIndexToPathname( requestInfo )
+      serveFile( requestInfo, request, response )
+    }
   })
   readStream.once( 'readable', function() {
-    var ext = path.extname( fileToServe ).replace('.', '')
+    var ext = path.extname( fileToServe ).replace( '.', '' )
     response.writeHead( 200, {
       'Content-Type': mime[ext] }
     )
@@ -150,6 +164,23 @@ var onRequest = function( request, response ) {
   })
 }
 
+/**
+ *
+ */
+var isIndex = function( pathname ) {
+  return pathname.substring( pathname.length - 10 ) == 'index.html' ?
+    true : false
+}
+
+/**
+ *
+ */
+var appendIndexToPathname = function( requestInfo ) {
+  if ( requestInfo.pathname[ requestInfo.length - 1 ] == '/' )
+    requestInfo.pathname += 'index.html'
+  else
+    requestInfo.pathname += '/index.html'
+}
 
 
 /**
