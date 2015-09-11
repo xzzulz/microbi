@@ -144,12 +144,13 @@ var serveFile = function( requestInfo, request, response ) {
   var readStream = fs.createReadStream( fileToServe )
 
   readStream.on( 'error', function() {
-    if ( isIndex( fileToServe ) )
-      respond404( response )
-    else {
-      appendIndexToPathname( requestInfo )
-      serveFile( requestInfo, request, response )
-    }
+    // commented part here brought some troubles, so it is being redesigned
+    //if ( isIndex( fileToServe ) )
+    respond404( response )
+    //else {
+    //  appendIndexToPathname( requestInfo )
+    //  serveFile( requestInfo, request, response )
+    //}
   })
   readStream.once( 'readable', function() {
     var ext = path.extname( fileToServe ).replace( '.', '' )
