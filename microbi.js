@@ -72,8 +72,9 @@ var onRequest = function( request, response ) {
   requestInfo = {
     method: request.method,    // "GET", "POST", etc
     pathname: urlObj.pathname, // request pathname (i.e: "/stuff/item")
-    queryParameters: urlObj.query, // url params as key:values in an object
+    queryParams: urlObj.query, // url params as key:values in an object
     body: '', // the request body, empty for now
+    pathParams: null,
   }
 
   if ( ! validatePath( requestInfo.pathname ) ) {
@@ -95,6 +96,7 @@ var onRequest = function( request, response ) {
     } else if ( apiOp ) {
       // collect the whole body before answering
       request.setEncoding( 'utf8' )
+      requestInfo.pathParams = apiOp.params
       request.on( 'data', function( data ) {
         requestInfo.body += data
       })
