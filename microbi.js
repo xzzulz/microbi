@@ -28,7 +28,7 @@ var router = require( './lib/router.js' )
 // Api server functionality is used. The router tries to match properties
 // of this object to url paths. For example, the path:
 //     stuff/items
-// is mapped to a tree of properites in the api object as follows:
+// is mapped to a tree of properties in the api object as follows:
 //     api.stuff.items.GET
 //
 // Note that the request method (GET in this case), is added as the last
@@ -73,7 +73,7 @@ var onRequest = function( request, response ) {
     method: request.method,    // "GET", "POST", etc
     pathname: urlObj.pathname, // request pathname (i.e: "/stuff/item")
     queryParameters: urlObj.query, // url params as key:values in an object
-    body: null, // the request body, unknown for now
+    body: '', // the request body, empty for now
   }
 
   if ( ! validatePath( requestInfo.pathname ) ) {
@@ -128,29 +128,25 @@ var onRequest = function( request, response ) {
   }
 
   serveFile( requestInfo, request, response )
-
 }
+
 
 
 /**
  *
  */
 var serveFile = function( requestInfo, request, response ) {
-  // If the requested path is "/", file to serve is "index.html"
-  var fileToServe = requestInfo.pathname == '/' ? 'index.html' : '.' +
-    requestInfo.pathname
+  // If the requested path ends in "/", add "index.html"
+  if ( requestInfo.pathname[ requestInfo.pathname.length - 1 ] == '/' )
+    requestInfo.pathname += 'index.html'
+
+  var fileToServe = '.' + requestInfo.pathname
 
   // serve file or respond 404 if there is no file
   var readStream = fs.createReadStream( fileToServe )
 
   readStream.on( 'error', function() {
-    // commented part here brought some troubles, so it is being redesigned
-    //if ( isIndex( fileToServe ) )
     respond404( response )
-    //else {
-    //  appendIndexToPathname( requestInfo )
-    //  serveFile( requestInfo, request, response )
-    //}
   })
   readStream.once( 'readable', function() {
     var ext = path.extname( fileToServe ).replace( '.', '' )
@@ -165,23 +161,6 @@ var serveFile = function( requestInfo, request, response ) {
   })
 }
 
-/**
- *
- */
-var isIndex = function( pathname ) {
-  return pathname.substring( pathname.length - 10 ) == 'index.html' ?
-    true : false
-}
-
-/**
- *
- */
-var appendIndexToPathname = function( requestInfo ) {
-  if ( requestInfo.pathname[ requestInfo.length - 1 ] == '/' )
-    requestInfo.pathname += 'index.html'
-  else
-    requestInfo.pathname += '/index.html'
-}
 
 
 /**
@@ -210,7 +189,6 @@ if ( ! module.parent ) server()
 
 
 
-
 /**
  * Starts https server.
  *
@@ -231,7 +209,6 @@ var httpsServer = function( options, port, ip ) {
 
 // export the server function, for use in external scripts
 exports.httpsServer = httpsServer
-
 
 
 
