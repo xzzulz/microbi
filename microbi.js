@@ -91,6 +91,8 @@ var onRequest = function( request, response ) {
 
     if ( apiOp && apiOp.stream ) {
       apiOp.fn( request, response )
+      return
+
     // If the "stream" property is not set, call the function with the
     // request url and the complete request message body as parameters.
     } else if ( apiOp ) {
@@ -238,7 +240,7 @@ var validatePath = function( path ) {
  * Emit a 404 response
  */
 var respond404 = function( response ) {
-  response.writeHead( 404 )
+  response.writeHead( 404, { 'Content-Type': mime.txt } )
   response.end( '404 Not found.' )
 }
 
@@ -248,7 +250,7 @@ var respond404 = function( response ) {
  * Emit a 405 response: method not allowed
  */
 var respond405 = function( response ) {
-  response.writeHead( 405 )
+  response.writeHead( 405, { 'Content-Type': mime.txt } )
   response.end( '405 Method not allowed.' )
 }
 
