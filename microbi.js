@@ -127,7 +127,7 @@ var onRequest = function( request, response ) {
     return
   }
 
-  serveFile( requestInfo, request, response )
+  serveFile( requestInfo.pathname, request, response )
 }
 
 
@@ -135,12 +135,12 @@ var onRequest = function( request, response ) {
 /**
  *
  */
-var serveFile = function( requestInfo, request, response ) {
+var serveFile = function( pathname, request, response ) {
   // If the requested path ends in "/", add "index.html"
-  if ( requestInfo.pathname[ requestInfo.pathname.length - 1 ] == '/' )
-    requestInfo.pathname += 'index.html'
+  if ( pathname[ pathname.length - 1 ] == '/' )
+    pathname += 'index.html'
 
-  var fileToServe = '.' + requestInfo.pathname
+  var fileToServe = '.' + pathname
 
   // serve file or respond 404 if there is no file
   var readStream = fs.createReadStream( fileToServe )
