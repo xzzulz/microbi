@@ -90,6 +90,7 @@ var onRequest = function( request, response ) {
     var apiOp = router.getOp( requestInfo, api )
 
     if ( apiOp && apiOp.stream ) {
+      response.writeHead( 200, { 'Content-Type': apiContentType } );
       apiOp.fn( request, response )
       return
 
