@@ -90,7 +90,9 @@ var onRequest = function( request, response ) {
     var apiOp = router.getOp( requestInfo, api )
 
     if ( apiOp && apiOp.stream ) {
-      response.writeHead( 200, { 'Content-Type': apiContentType } );
+      response.writeHead( 200, {
+        'Content-Type': apiOp.mime ? mime[apiOp.mime] : apiContentType
+      })
       apiOp.fn( request, response )
       return
 
@@ -106,7 +108,9 @@ var onRequest = function( request, response ) {
       // when the incoming message body is complete, call the defined
       // api method for this request
       request.on( 'end', function() {
-        response.writeHead( 200, { 'Content-Type': apiContentType } );
+        response.writeHead( 200, {
+          'Content-Type': apiOp.mime ? mime[apiOp.mime] : apiContentType
+        })
         // call the api method, passing as parameter the url object,
         // and the incoming message body
         response.end( apiOp.fn( requestInfo ) )
