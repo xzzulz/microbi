@@ -374,5 +374,102 @@ describe( "Microbi", function() {
 
 
 
+    describe( "Streaming api operations", function() {
+      var streamPath = "/test/stream"
+      var mimeAltStreamUrl = "http://localhost:55555/test/stream/mimeAlt"
+
+      beforeAll( function() {
+        var api = {}
+        microbi.setApi( api )
+        microbi.setApiContentType( "txt" )
+
+        api.test = {}
+
+        api.test.stream = {}
+        api.test.stream["POST:stream"] = true
+        api.test.stream.POST = function( request, response ) {
+          request.pipe( response )
+        }
+
+        api.test.stream.mimeAlt = {}
+        api.test.stream.mimeAlt["GET:stream"] = true
+        api.test.stream.mimeAlt["GET:mime"] = "mpeg"
+        api.test.stream.mimeAlt.GET = function( request, response ) {
+          response.write('abcdefghijklmnopqrstuvwxyz')
+          response.end()
+        }
+      });
+
+
+
+      it( "should provide access to stream", function( done ) {
+
+        var message = []
+        message.push( "This is the streaming\n" )
+        message.push( "Server in action\n" )
+        message.push( "This simple test\n" )
+        message.push( "requires the server to mirror\n" )
+        message.push( "back this message stream\n" )
+
+        var req = http.request({
+          hostname: "localhost",
+          port: 55555,
+          path: streamPath,
+          method: "POST",
+          headers: {
+            "Content-Type": "text/plain",
+          }
+        }, function( res ) {
+          var body = ""
+          res.on( "data", function ( chunk ) {
+            body += chunk
+          })
+          res.on( "end", function() {
+            expect( res.statusCode ).toEqual( 200 );
+            expect( res.headers["content-type"] ).toEqual( "text/plain" );
+            expect( body ).toEqual( message.join( "" ) );
+            done()
+          })
+          res.on( "error", function ( e ) {
+            fail( "Server error" )
+          })
+        })
+        req.on( "error", function( e ) {
+          fail( "Request error" )
+        });
+        req.write( message[0] )
+        req.write( message[1] )
+        req.write( message[2] )
+        req.write( message[3] )
+        req.write( message[4] )
+        req.end()
+
+      })
+
+
+
+      it( "should allow to specify the mime type of streaming api ops",
+        function( done ) {
+
+        http.get( mimeAltStreamUrl, function( res ) {
+          var body = ""
+          res.on( "data", function ( chunk ) {
+            body += chunk
+          });
+          res.on( "end", function() {
+            expect( res.statusCode ).toEqual( 200 );
+            expect( res.headers["content-type"] ).toEqual( "video/mpeg" );
+            expect( body ).toEqual( "abcdefghijklmnopqrstuvwxyz" );
+            done()
+          })
+        }).on( "error", function( e ) {
+          fail( "Request Error" )
+        });
+
+      });
+
+
+
+    })
 
 })
