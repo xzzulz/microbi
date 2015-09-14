@@ -18,7 +18,7 @@ describe( "Microbi", function() {
 
 
   beforeAll( function() {
-    microbi.server( 55555 )
+    microbi.start( 55555 )
   })
 
 
@@ -85,8 +85,8 @@ describe( "Microbi", function() {
 
     beforeAll( function() {
       var api = {}
-      microbi.setApi( api )
-      microbi.setApiContentType( "txt" )
+      microbi.api = api
+      microbi.setMime( "txt" )
 
       api.test = {}
       api.test.hello = {}
@@ -380,8 +380,8 @@ describe( "Microbi", function() {
 
       beforeAll( function() {
         var api = {}
-        microbi.setApi( api )
-        microbi.setApiContentType( "txt" )
+        microbi.api = api
+        microbi.setMime( "txt" )
 
         api.test = {}
 
