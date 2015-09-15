@@ -2,41 +2,30 @@
 //   microbi.js api definition example
 //
 //
-// This is an example file for how to define api methods for
-// microbi.js. This file is not used by microbi. A file like this
-// is not required to run microbi as http server only, without
-// using the api functionality.
+// Example script on how to define an api for microbi.
 //
-// How to use microbi as an api server
-// -----------------------------------
+// To use microbi as an api server, create a script similar to this one.
+// Define api routes and methods on microbi "api" property.
 //
-// To use microbi as an api server, create a file based on this one.
-// On it, define api routes and methods on an "api object".
-// Require and set up microbi from it, and run the file with node.
-//
-// To define an api for microbi, add properties and methods
-// to a generic object, usually called "api", and refered as the
-// "api object" by microbi documentation. Pass that object
-// to the method microbi.setApi( api ).
-//
-// Each api operation to be defined, requires a function.
+// Each api operation to be defined is a function.
 // When the api operation is called, the function will be executed,
-// and what it returns, will be set as the response of the api call.
+// and whatever it returns, will be set as the response of the api call.
 //
-// Api routes consist of a tree of properties on the api object.
+// Api routes consist of a tree of properties on the api property.
 // For example to make a GET request on the url path:
+//
 //    /stuff/items
-// The api object should have a function defined on the properties:
-//    api.stuff.items.GET
+//
+// The api property should have a function defined on the properties:
+//
+//    microbi.api.stuff.items.GET = function() {...}
+//
 // a function should be there, and it will be called on each
 // request to that url path. The last property name of an
 // api method is the request method (GET, POST, etc)
 //
-// The function will be called with two parameters:
-// - The request url object, as returned by the node standard
-//   function  url.parse. (With the query parameters parsed)
-// - The request message body. (for request methods that have it.)
-//
+// The function will be called with a single parameter. An object
+// containing request info. Consult the docs for more details.
 
 
 
@@ -46,38 +35,82 @@ var microbi = require('./microbi.js')
 
 
 
-
 // Create an api object to define the api
 var api = {}
+microbi.api = {}
 
-// set the object as the api for microbi
-microbi.setApi( api )
 
 // set the default content type (text, json, etc)
 // This defaults to text, so in this case the call is superfluous.
-microbi.setApiContentType( 'txt' )
+microbi.setMime( 'txt' )
 
 // define routes as a tree of properties
 api.stuff = {}
 api.stuff.items = {}
 
-// this api function will be called on GET method with the url path:
-//    /stuff/items
-api.stuff.items.GET = function( reqUrl ) {
-  return 'Hello World! - stuff/items GET'
+
+// Example 1
+// A simple hello world request
+// ============================
+// Whatever the api functions returns, that will be the response
+// to a request.
+//
+//            url: http://example.com/stuff/items
+// request method: GET
+//       response: Hello World!
+api.stuff.items.GET = function( info ) {
+  return 'Hello World!'
 }
 
-api.stuff.items.POST = function( reqUrl, requestBody ) {
-  return 'Hello World! - stuff/items POST'
+
+// Example 2
+// The request info object
+// =======================
+// The info object contains useful data.
+//
+//            url: http://example.com/stuff/items
+// request method: POST
+//       response: "/stuff/items"
+api.stuff.items.POST = function( info ) {
+  console.log( info.pathname )     // outputs: /stuff/items
+  console.log( info.method )       // outputs: POST
+  console.log( info.queryParams )  // outputs: {}
+  console.log( info.pathParams )   // outputs: []
+  console.log( info.body )         // outputs: the request body
+  return info.pathname
 }
 
-api.stuff.items.DELETE = function( reqUrl ) {
-  return 'Hello World! - stuff/items DELETE'
+
+// Example 3
+// query parameters
+// ================
+// queryParams object contain the url parameters as name value pairs.
+//
+//            url: http://example.com/stuff/items?a=1&b=2
+// request method: GET
+//       response: "2"
+api.stuff.items.GET = function( info ) {
+  console.log( info.queryParams )  // outputs: { a:1, b:2 }
+  return info.queryParams.b
 }
 
-api.stuff.items.PUT = function( reqUrl, requestBody ) {
-  return 'Hello World! - stuff/items PUT'
+
+// Example 4
+// Two path parameters
+// ===================
+// $x paths will match any value, and store it as a path parameter,
+// in the pathParams array.
+//
+//            url: http://example.com/stuff/sales/16545
+// request method: PUT
+//       response: "16545"
+api.stuff.$x = {}
+api.stuff.$x.$x = {}
+api.stuff.$x.$x.PUT = function( info ) {
+  console.log( info.pathParams )  // outputs: [ "sales", "16545" }
+  return info.pathParams[1]
 }
+
 
 // start the server
-microbi.server()
+microbi.start()
