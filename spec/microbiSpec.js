@@ -472,4 +472,83 @@ describe( "Microbi", function() {
 
     })
 
+
+
+    describe( "Multiple servers", function() {
+
+      beforeAll( function() {
+        var microbi2 = Object.create( microbi )
+        microbi2.api = {
+          hello: {
+            GET: function() { return "server 2" }
+          }
+        }
+        microbi2.start( 53300 )
+
+        var microbi3 = Object.create( microbi2 )
+        microbi3.staticServer = false
+        microbi3.api = null
+        microbi3.start( 53301 )
+
+        var microbi4 = Object.create( microbi3 )
+        microbi4.api = {
+          hello: {
+            GET: function() { return "server 4" }
+          }
+        }
+        microbi4.start( 53302 )
+      })
+
+
+
+      it( "should allow to have multiple independent servers", function( done ) {
+
+        http.get( "http://localhost:53300/hello", function( res ) {
+          var body = ""
+          res.on( "data", function ( chunk ) {
+            body += chunk
+          });
+          res.on( "end", function() {
+            expect( res.statusCode ).toEqual( 200 );
+            expect( res.headers["content-type"] ).toEqual( "text/plain" );
+            expect( body ).toEqual( "server 2" );
+          })
+        }).on( "error", function( e ) {
+          fail( "Request Error" )
+        });
+
+        http.get( "http://localhost:53301/hello", function( res ) {
+          var body = ""
+          res.on( "data", function ( chunk ) {
+            body += chunk
+          });
+          res.on( "end", function() {
+            expect( res.statusCode ).toEqual( 404 );
+            expect( res.headers["content-type"] ).toEqual( "text/plain" );
+            expect( body ).toEqual( "404 Not found." );
+          })
+        }).on( "error", function( e ) {
+          fail( "Request Error" )
+        });
+
+        http.get( "http://localhost:53302/hello", function( res ) {
+          var body = ""
+          res.on( "data", function ( chunk ) {
+            body += chunk
+          });
+          res.on( "end", function() {
+            expect( res.statusCode ).toEqual( 200 );
+            expect( res.headers["content-type"] ).toEqual( "text/plain" );
+            expect( body ).toEqual( "server 4" );
+            done()
+          })
+        }).on( "error", function( e ) {
+          fail( "Request Error" )
+        });
+
+      });
+
+
+
+    })
 })
