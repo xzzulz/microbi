@@ -2,4 +2,5 @@
 
 var microbi = require('../microbi.js')
 
-microbi.server()
+microbi.start()
+console.log('Server started.')

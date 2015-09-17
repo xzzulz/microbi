@@ -38,10 +38,9 @@ var microbi = {
     port = port || process.argv[ 2 ] || 8080
     ip = ip || process.argv[ 3 ] || '127.0.0.1'
     var that = this
-    this.server = http.createServer(function( request, response ) {
+    this.server = http.createServer( function( request, response ) {
       onRequest( request, response, that.api, that.staticServer, that.apiContentType )
     }).listen( port, ip );
-    console.log( 'Server running at ip: ' + ip + ':' + port );
   },
 
   // starts https server on port and ip.
@@ -50,10 +49,9 @@ var microbi = {
     port = port || process.argv[ 2 ] || 8080
     ip = ip || process.argv[ 3 ] || '127.0.0.1'
     var that = this
-    this.server = https.createServer(function( request, response ) {
+    this.server = https.createServer( function( request, response ) {
       onRequest( request, response, that.api, that.staticServer, that.apiContentType )
     }).listen( port, ip );
-    console.log( 'Https server running at ip: ' + ip + ':' + port );
   },
 
   // Sets global mime type for api ops, from a extension name
