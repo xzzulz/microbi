@@ -2,27 +2,36 @@
 ![microbi](http://nzonbi.github.io/microbi/img/microbi.png)
 
 # microbi.js
-v0.3.1
+v0.4.0
 
-Minimalist API server and static http server for Node.js.
+Minimalist api server and static http server for Node.js.
 
 ## Overview
 
-Microbi is a minimalist http server and API server, that is easy to
-modify and customize. Created it because I like tools that are as
-simple as possible. Also to have some fun and to learn.
+Microbi is a minimalist api server and static http server.
+It allows to easily serve apis and static files from a single tool.
+Which may be good for having a simple setup for locally installed apps,
+or for development, prototyping, and/or production of low traffic web apps.
+Microbi is not optimized for high performance, so it may not be ideal
+for high traffic sites.
 
 license (MIT)
 
+## Features
+
+* Can function as an api server and/or static server.
+* Api ops use a global mime type, individual ops can override it.
+* Api ops support streams.
+* Allows to set up multiple servers.
+* All server features are supported by test cases.
+
 ## Documentation
 
-The source code has detailed comments.
-
 Microbi has two ways to use:
-- Installed globally, the microbi command can be used to launch a
-  static server on any folder.
-- Use `require('microbi')` and define an api to use as an api server
-  and static server.
+- Installed globally, the microbi command can be used to launch
+  static servers on any folder.
+- Use `require('microbi')` and can be used as an api server and/or
+  static server.
 
 ### Global command: static server
 
@@ -53,7 +62,8 @@ script is provided:
 
      apiServer_example.js
 
-To define an api, install microbi if it is not installed:
+To define an api, install microbi if it is not installed. Either globally
+or locally:
 
      npm install microbi
 
@@ -68,7 +78,7 @@ For example:
 
      // create the api object
      var api = {}
-     microbi.setApi( api )
+     microbi.api = api
 
      // define routes as properties
      api.stuff = {}
@@ -81,7 +91,7 @@ For example:
      }
 
      // start the server
-     microbi.server()
+     microbi.start()
 ```
 
 Run with node. Then pointing the browser on the path:
@@ -96,60 +106,100 @@ Read the source code for more details. It has descriptive comments.
 
 ## Reference
 
-After requiring microbi, the next methods are available
+Microbi object: get an instance of the microbi object with require:
 ```javascript
      var microbi = require( 'microbi' )
 ```
-####     microbi.server( [port], [ip] )
-Starts the microbi server with the optional port and ip address.
+### Microbi properties and methods
+
+####     microbi.start( [port], [ip] )
+Starts a microbi server with the optional port and ip address.
 If these are not provided, defaults to port 8080, ip 127.0.0.1
 
-####     microbi.setApiContentType( ext )
+####     microbi.startHttps( [port], [ip] )
+Starts an https microbi server with the optional port and ip address.
+If these are not provided, defaults to port 8080, ip 127.0.0.1
+
+####     microbi.setMime( extension )
 Sets the default api content type from the provided extension.
 For example, pass "txt" to set content type to "text/plain"
 
-####     microbi.setApi( api )
-Sets the api object to use. the api object is a generic object containing
-routes and api functions. url paths will be mapped to functions in this
-object. For example, the path:
+####     microbi.api
+Defaults to null. set it to the api object to use. A generic object
+containing routes and api functions. Url paths will be mapped to
+functions in this object. For example, the path:
 
      exampleHost/user/items
 
 for a GET request, will be mapped to the next function on the api object:
 
-     api.user.items.GET
+     microbi.api.user.items.GET
 
 If there is a function there, it will be called, and whatever it returns
 will be the server response.
 
-####     microbi.disableStaticServer()
-Call this method once to disable the static server, and use only the api
-server functionality. Intended to be called once at server startup.
+####     microbi.staticServer
+Boolean, defaults to true. If this is set to false, microbi the static server
+will be disabled, and microbi will only try to function as an api server.
+Requests that don't match an api op, will be answered with 404.
 
 ### Api functions
 
 Defined api function:
 ```javascript
-     api.stuff.items.POST = function( reqUrl, requestBody ) {
+     api.stuff.items.POST = function( info ) {
        return 'Hello World!'
      }
 ```
- get the following parameters:
+ get the info parameter, with contains various properties:
 
-- reqUrl: An url object returned by Node url.parse method
-- requestBody: The complete request body message, if there is one.
-  Note that some http methods (GET, DELETE) don't have request body.
+* info.method: String. Name of the request method in uppercase
+  examples: ("GET", "POST", "PUT")
+* info.pathname: String. The request pathname. The part of the url
+  that goes after the host, and before the query string. Example:
+    request url: example.com/stuff/items?a=1&b=2
+    info.pathname: "/stuff/items"
+* info.queryParams: Object. An object containing name - value pairs,
+  for each of the query parameters.
+  Example
+    request url: example.com/stuff/items?a=1&b=2
+    info.queryParams: { a: 1, b: 2 }
+* info.body: String. The content of the request body.
+* info.pathParams: Array. pathParams are a way of matching any value
+  in a path, and returning it as a parameter.
+  Example: when an api method is defined with one of its paths
+  as "$x", it will match any path piece, and return it as an element
+  of the pathParams array.
+    request url: example.com/stuff/items/11523
+    api op defined at: microbi.api.stuff.items.$x.GET
+    then $x matches 11523, and the array is set to:
+    info.pathParams: [ "11523" ]
+
+### Overriding the default mime type for api ops
+
+To specify a different mime type than the default one for an api op,
+set a property of name request method, a colon, and the word mime.
+Set it to the extension name of the mime type:
+```javascript
+     api.stuff.items.["POST:mime"] = "html"
+```
+The above definition, will make the api op
+```javascript
+     api.stuff.items.POST
+```
+To get a mime type of "text/html".
 
 #### Alternate options: Using streams on api functions
 
 There is the option to get Node stream objects as parameters on api functions.
-For this, set a "stream" flags directly on the api function:
+For this, set a "stream" flag on the api function:
 ```javascript
-     api.stuff.items.POST.stream = true
+     api.stuff.items.["POST:stream"] = true
 ```
-Api functions that have this flag set, will get not get the reqUrl and
-requestBody as parameter. Instead these api functions will get the
-request and response stream objects as follows:
+The above will flag the `api.stuff.items.POST` api op as streaming.
+Api functions that have this flag set, will get not get the info
+object as parameter. Instead these api functions will get the
+request and response node stream objects as follows:
 ```javascript
      api.stuff.items.POST = function( request, response ) {
        return 'Hello World!'
