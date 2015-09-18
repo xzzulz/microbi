@@ -1,7 +1,7 @@
 {
   "name": "microbi",
   "version": "0.4.0",
-  "description": "http server and api server",
+  "description": "api server and http server",
   "main": "microbi.js",
   "scripts": {
     "test": "jasmine",
