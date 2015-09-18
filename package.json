@@ -29,5 +29,8 @@
   "bugs": {
     "url": "https://github.com/nzonbi/microbi/issues"
   },
-  "homepage": "https://github.com/nzonbi/microbi#readme"
+  "homepage": "https://github.com/nzonbi/microbi#readme",
+  "dependencies": {
+    "mimemap": "0.0.14"
+  }
 }
