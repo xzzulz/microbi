@@ -159,38 +159,48 @@ with the POST method, to the path: host.com/stuff/items
 When there is no defined api that matches the path, microbi will
 try to look for a static file to serve under that path.
 
-Api ops get the info object as parameter, with contains various properties:
+Api ops get the info object as parameter. Its content is described in the
+next section.
 
-##### info.method: String.
-  Name of the request method in uppercase
-  examples: ("GET", "POST", "PUT")
+#### Properties of the info parameter
 
-##### info.pathname: String.
-  The request pathname. The part of the url
-  that goes after the host, and before the query string. Example:
-    request url: example.com/stuff/items?a=1&b=2
-    info.pathname: "/stuff/items"
+##### info.method (String)
+  Name of the request method in uppercase.<br>
+  Examples:<br>
+  `"GET"`, `"POST"`, `"PUT"`, etc.
 
-##### info.queryParams: Object.
-  An object containing name - value pairs,
-  for each of the query parameters.
-  Example
-    request url: example.com/stuff/items?a=1&b=2
-    info.queryParams: { a: 1, b: 2 }
 
-##### info.body: String.
+##### info.pathname (String)
+  The request pathname. The part of the url that goes after the host,
+  and before the query string.<br>
+  Example:<br>
+    request url: `example.com/stuff/items?a=1&b=2`<br>
+    info.pathname: `"/stuff/items"`
+
+
+##### info.queryParams (Object)
+  An object containing name - value pairs, for each of the query parameters.<br>
+  Example:<br>
+    request url: `example.com/stuff/items?a=1&b=2`<br>
+    info.queryParams: `{ a: 1, b: 2 }`
+
+
+##### info.body (String)
   The complete content of the request body as a string.
 
-##### info.pathParams:
-  Array. pathParams are a way of matching any value
-  in a path, and returning it as a parameter.
-  Example: when an api method is defined with one of its paths
-  as "$x", it will match any path piece, and return it as an element
-  of the pathParams array.
-    request url: example.com/stuff/items/11523
-    api op defined at: microbi.api.stuff.items.$x.GET
-    then $x matches 11523, and the array is set to:
-    info.pathParams: [ "11523" ]
+
+##### info.pathParams (Array)
+  pathParams are a way of matching any path parts in a path, and returning
+  them as a parameters.<br>
+  Example:<br>
+  when an api method is defined with one of its paths as "$x", it will
+  match any path piece, and return it as an element of the pathParams
+  array.<br>
+    request url: `example.com/stuff/items/11523`<br>
+    api op defined at: `microbi.api.stuff.items.$x.GET`<br>
+    The code `$x` matches `11523`, and it is returned in the array<br>
+    info.pathParams: `[ "11523" ]`
+
 
 ### Overriding the default mime type for api ops
 
