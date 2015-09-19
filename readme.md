@@ -2,7 +2,7 @@
 ![microbi](http://nzonbi.github.io/microbi/img/microbi.png)
 
 # microbi.js
-v0.4.0
+v0.4.1
 
 Minimalist api server and static http server for Node.js.
 
@@ -94,15 +94,14 @@ For example:
      microbi.start()
 ```
 
-Run with node. Then pointing the browser on the path:
+Run with node. Then pointing the browser to the path:
 
      someHost/stuff/items
 
-For Get request methods, it will serve what the function returns:
+For Get request methods, it will serve whatever the function returns:
 
      Hello World!
 
-Read the source code for more details. It has descriptive comments.
 
 ## Reference
 
@@ -112,19 +111,19 @@ Microbi object: get an instance of the microbi object with require:
 ```
 ### Microbi properties and methods
 
-####     microbi.start( [port], [ip] )
+#####     microbi.start( [port], [ip] )
 Starts a microbi server with the optional port and ip address.
 If these are not provided, defaults to port 8080, ip 127.0.0.1
 
-####     microbi.startHttps( [port], [ip] )
+#####     microbi.startHttps( [port], [ip] )
 Starts an https microbi server with the optional port and ip address.
 If these are not provided, defaults to port 8080, ip 127.0.0.1
 
-####     microbi.setMime( extension )
+#####     microbi.setMime( extension )
 Sets the default api content type from the provided extension.
 For example, pass "txt" to set content type to "text/plain"
 
-####     microbi.api
+#####     microbi.api
 Defaults to null. set it to the api object to use. A generic object
 containing routes and api functions. Url paths will be mapped to
 functions in this object. For example, the path:
@@ -138,34 +137,52 @@ for a GET request, will be mapped to the next function on the api object:
 If there is a function there, it will be called, and whatever it returns
 will be the server response.
 
-####     microbi.staticServer
+#####     microbi.staticServer
 Boolean, defaults to true. If this is set to false, microbi the static server
 will be disabled, and microbi will only try to function as an api server.
 Requests that don't match an api op, will be answered with 404.
 
-### Api functions
+### Defining api ops
 
-Defined api function:
+Api ops are defined by setting up functions on a tree of properties,
+on the api object: `microbi.api` Property names on the tree, will match
+paths on the url. The api ops response is what the function returns.
+Useful request data is available in the info parameter.
+For example:
 ```javascript
-     api.stuff.items.POST = function( info ) {
+     microbi.api.stuff.items.POST = function( info ) {
        return 'Hello World!'
      }
 ```
- get the info parameter, with contains various properties:
+This api op will respond with "Hello World!" to incoming requests
+with the POST method, to the path: host.com/stuff/items
+When there is no defined api that matches the path, microbi will
+try to look for a static file to serve under that path.
 
-* info.method: String. Name of the request method in uppercase
+Api ops get the info object as parameter, with contains various properties:
+
+##### info.method: String.
+  Name of the request method in uppercase
   examples: ("GET", "POST", "PUT")
-* info.pathname: String. The request pathname. The part of the url
+
+##### info.pathname: String.
+  The request pathname. The part of the url
   that goes after the host, and before the query string. Example:
     request url: example.com/stuff/items?a=1&b=2
     info.pathname: "/stuff/items"
-* info.queryParams: Object. An object containing name - value pairs,
+
+##### info.queryParams: Object.
+  An object containing name - value pairs,
   for each of the query parameters.
   Example
     request url: example.com/stuff/items?a=1&b=2
     info.queryParams: { a: 1, b: 2 }
-* info.body: String. The content of the request body.
-* info.pathParams: Array. pathParams are a way of matching any value
+
+##### info.body: String.
+  The complete content of the request body as a string.
+
+##### info.pathParams:
+  Array. pathParams are a way of matching any value
   in a path, and returning it as a parameter.
   Example: when an api method is defined with one of its paths
   as "$x", it will match any path piece, and return it as an element
@@ -178,8 +195,10 @@ Defined api function:
 ### Overriding the default mime type for api ops
 
 To specify a different mime type than the default one for an api op,
-set a property of name request method, a colon, and the word mime.
+set a property with a name composed of:
+  the request method, a colon, and the word mime.
 Set it to the extension name of the mime type:
+For example:
 ```javascript
      api.stuff.items.["POST:mime"] = "html"
 ```
@@ -192,12 +211,12 @@ To get a mime type of "text/html".
 #### Alternate options: Using streams on api functions
 
 There is the option to get Node stream objects as parameters on api functions.
-For this, set a "stream" flag on the api function:
+For this, set a "stream" flag on the api op, as follows:
 ```javascript
      api.stuff.items.["POST:stream"] = true
 ```
 The above will flag the `api.stuff.items.POST` api op as streaming.
-Api functions that have this flag set, will get not get the info
+Api functions that have this flag set, will not get the info
 object as parameter. Instead these api functions will get the
 request and response node stream objects as follows:
 ```javascript
