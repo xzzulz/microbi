@@ -12,7 +12,7 @@ Microbi is a minimalist api server and static http server.
 It allows to easily serve apis and static files from a single tool.
 Which may be good for having a simple setup for locally installed apps,
 or for development, prototyping, and/or production of low traffic web apps.
-Microbi is not optimized for high performance, so it may not be ideal
+Microbi does not have a cache, so it may not be ideal
 for high traffic sites.
 
 license (MIT)
