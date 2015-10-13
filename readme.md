@@ -2,7 +2,7 @@
 ![microbi](http://nzonbi.github.io/microbi/img/microbi.png)
 
 # microbi.js
-v0.4.1
+v0.4.2
 
 Minimalist api server and static http server for Node.js.
 
