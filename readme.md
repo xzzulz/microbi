@@ -1,5 +1,5 @@
 
-![microbi](http://nzonbi.github.io/microbi/img/microbi.png)
+![microbi](http://lignixz.github.io/microbi/img/microbi.png)
 
 # microbi.js
 v0.4.2
@@ -12,8 +12,6 @@ Microbi is a minimalist api server and static http server.
 It allows to easily serve apis and static files from a single tool.
 Which may be good for having a simple setup for locally installed apps,
 or for development, prototyping, and/or production of low traffic web apps.
-Microbi does not have a cache, so it may not be ideal
-for high traffic sites.
 
 license (MIT)
 
@@ -48,6 +46,10 @@ Launch the static server with the global command:
      microbi
 
 Ready! the static server is active.
+
+Optionally pass a port number. Serve the current folder on port 50000:
+
+     microbi 50000
 
 Optionally pass a port and IP to the microbi command. The defaults
 are port: 8080, ip: 127.0.0.1
