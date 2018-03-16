@@ -2,34 +2,46 @@
 ![microbi](http://lignixz.github.io/microbi/img/microbi.png)
 
 # microbi.js
-v0.4.2
+v0.4.4 (beta)
 
 Minimalist api server and static http server for Node.js.
 
 ## Overview
 
-Microbi is a minimalist api server and static http server.
-It allows to easily serve apis and static files from a single tool.
-Which may be good for having a simple setup for locally installed apps,
+Microbi is a basic minimal static http server and api server. It allows
+to easily serve static files and javascript api functions from a single
+tool. Which may be good for having a simple setup for locally installed apps,
 or for development, prototyping, and/or production of low traffic web apps.
+
+It can be installed with npm, as a global command.
+It is a single file with no dependencies, so it can also be used easily
+even without any installation. Just put the microbi.js file in the same
+folder and use with the shell comand: 
+
+     node microbi.js [optional-port-number]
+
+It supports just the essential mime types. Edit the source to add more
+if required.
 
 license (MIT)
 
 ## Features
 
-* Can function as an api server and/or static server.
+* Can work as an api server and/or static server.
 * Api ops use a global mime type, individual ops can override it.
 * Api ops support streams.
 * Allows to set up multiple servers.
-* All server features are supported by test cases.
+* All server features are supported by test cases. (revision pending)
 
 ## Documentation
 
-Microbi has two ways to use:
+Microbi has three ways to use:
 - Installed globally, the microbi command can be used to launch
   static servers on any folder.
 - Use `require('microbi')` and can be used as an api server and/or
   static server.
+- no installation server: put microbi.js file on the folder to
+  serve, and shell: `node microbi.js [port-number]`
 
 ### Global command: static server
 

@@ -1,6 +1,6 @@
 {
   "name": "microbi",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "api server and http server",
   "main": "microbi.js",
   "scripts": {
@@ -26,11 +26,5 @@
   ],
   "author": "nzonbi",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/nzonbi/microbi/issues"
-  },
-  "homepage": "https://github.com/nzonbi/microbi#readme",
-  "dependencies": {
-    "mimemap": "0.0.14"
-  }
+  "homepage": "https://github.com/nzonbi/microbi#readme"
 }

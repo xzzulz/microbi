@@ -1,6 +1,0 @@
-#!/usr/bin/env node
-
-var microbi = require('../microbi.js')
-
-microbi.start()
-console.log('Server started.')

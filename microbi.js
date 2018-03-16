@@ -13,10 +13,41 @@ var http = require( 'http' )
 var https = require( 'https' )
 var path = require( 'path' )
 var url = require( 'url' )
-var mime = require( 'mimemap' ).map
 
-// a couple of functions to route url paths
-var router = require( './lib/router.js' )
+
+
+// supported mime types.
+// add more if needed.
+const mime = {
+  'css': 'text/css',
+  'gif': 'image/gif',
+  'htm': 'text/html',
+  'html': 'text/html',
+  'ico': 'image/x-icon',
+  'jpeg': 'image/jpeg',
+  'jpg': 'image/jpeg',
+  'js': 'application/javascript',
+  'json': 'application/json',
+  'mpeg': 'video/mpeg',
+  'png': 'image/png',
+  'pdf': 'application/pdf',
+  'rar': 'application/x-rar-compressed',
+  'rtf': 'application/rtf',
+  'svg': 'image/svg+xml',
+  'ttf': 'font/ttf',
+  'txt': 'text/plain',
+  'wav': 'audio/x-wav',
+  'weba': 'audio/webm',
+  'webm': 'video/webm',
+  'webp': 'image/webp',
+  'woff': 'font/woff',
+  'woff2': 'font/woff2',
+  'xhtml': 'application/xhtml+xml',
+  'xml': 'application/xml',
+  'zip': 'application/zip',
+  '3gp': 'video/3gpp',
+  '3g2': 'video/3gpp2'
+  }
 
 
 
@@ -170,16 +201,29 @@ var serveFile = function( pathname, request, response ) {
 
   var fileToServe = '.' + pathname
 
+  var ext = path.extname( fileToServe ).replace( '.', '' )
+  let mimeExt = mime[ext]
+
+  // if there is no mime type, check if it could be a directory
+  if ( !mimeExt ) {
+    let file = fs.openSync( fileToServe, 'r' )
+    let is_dir = fs.fstatSync( file )
+    if ( is_dir ) {
+      redirect301( response, pathname + '/' )
+      return
+    }
+  }
+
   // serve file or respond 404 if there is no file
   var readStream = fs.createReadStream( fileToServe )
 
-  readStream.on( 'error', function() {
+  readStream.on( 'error', function() {  
     respond404( response )
+    return
   })
-  readStream.once( 'readable', function() {
-    var ext = path.extname( fileToServe ).replace( '.', '' )
+  readStream.once( 'readable', function() {   
     response.writeHead( 200, {
-      'Content-Type': mime[ext] }
+      'Content-Type': mimeExt }
     )
     // connect the file read stream to the response stream, to serve the file
     readStream.pipe( response )
@@ -209,6 +253,18 @@ var DISALLOWED_PATH_REGEX = /(\.\.)|(\/\.)|(\/\/)/
 var validatePath = function( path ) {
   if ( DISALLOWED_PATH_REGEX.test( path ) ) return false
   return VALID_PATH_REGEX.test( path )
+}
+
+
+
+/**
+ * Emit a 301 response: moved permanently
+ * @param response  Object  instance of node http.ServerResponse.
+ * @param location  string  redirect url.
+ */
+var redirect301 = function( response, location ) {
+  response.writeHead( 301, { 'Location': location } )
+  response.end()
 }
 
 
@@ -250,4 +306,90 @@ module.exports = microbi
 
 if ( ! module.parent ) {
   microbi.start( 55555 )
+}
+
+
+
+//
+// Router functions
+//
+const router = {}
+
+
+/**
+ * Search the api object for a defined api op, for a server request.
+ *
+ * @param requestInfo  Object  describes the incoming request.
+ * @param api  Object  Where api ops are stored.
+ * @return Object  An object containing the api op and data.
+ */
+router.getOp = ( requestInfo, api ) => {
+  var routeParts = getParts( requestInfo.pathname )
+  if ( ! routeParts.length ) return null
+
+  var pathNode = getPathNode( routeParts, api )
+  if ( ! pathNode.node ) return null
+
+  var apiFunction = pathNode.node[ requestInfo.method ]
+  if ( ! apiFunction ) return null
+
+  var streamFlag = pathNode.node[ requestInfo.method + ':stream' ]
+  var mimeAlt = pathNode.node[ requestInfo.method + ':mime' ]
+
+  // return an object with api op data
+  return {
+    fn: apiFunction, // function, or null if there was no api op found
+    stream: streamFlag, // boolean flag, indicating streaming ops.
+    params: pathNode.params, // array, with path parameters if any
+    mime: mimeAlt // alternative mime type, if the op had one defined.
+  }
+}
+
+
+
+/**
+ * Splits a path and discards empty elements
+ *
+ * For example for the path:
+ *     stuff/items
+ * creates the array:
+ *     [ 'stuff', 'items' ]
+ * @param path  String  path, example: "/some/path"
+ * @return Array  path pieces (strings)
+ */
+router.getParts = ( path ) => {
+  return path.split( '/' ).filter(function(el) { return el })
+}
+
+
+
+/**
+ * Takes an array of path pieces, and an api object.
+ * finds if there is a tree of properties in the api object
+ * that correspond to the path pieces.
+ * For example, for the array path:
+ *     [ 'stuff', 'items' ]
+ * it searches the api object tree as follows:
+ *     api.stuff.items
+ * return the value of the last object in the tree,
+ * or null if the required properties are not defined.
+ * Properties of the form "$x", (if any) will match any path piece,
+ * and will be returned as path parameters, in an array.
+ *
+ * @param paths  array  the path pieces.
+ * @param api  Object  were the api functions are stored.
+ * @return Object  with api node and an array of path params.
+ */
+router.getPathNode = ( paths, api ) => {
+  var apiNode = api, paramNode, urlParams = []
+  for (var i in paths) {
+    paramNode = apiNode.$x
+    apiNode = apiNode[ paths[i] ]
+    if ( ! apiNode && paramNode ) {
+      apiNode = paramNode
+      urlParams.push( paths[i] )
+    }
+    if ( ! apiNode ) return { node: null, params: null }
+  }
+  return { node: apiNode, params: urlParams }
 }
