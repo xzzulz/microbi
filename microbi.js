@@ -8,7 +8,7 @@
 //
 //
 
-var fs = require( 'fs' );
+var fs = require( 'fs' )
 var http = require( 'http' )
 var https = require( 'https' )
 var path = require( 'path' )
@@ -304,8 +304,9 @@ var respond400 = function( response ) {
 
 module.exports = microbi
 
+// if it is not being run from node, launch the server
 if ( ! module.parent ) {
-  microbi.start( 55555 )
+  microbi.start( 8080 )
 }
 
 

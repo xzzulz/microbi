@@ -1,0 +1,5 @@
+#!/usr/bin/env node
+var argum = process.argv.slice(2)
+
+var microbi = require( './microbi.js' )
+microbi.start( argum[0] || 8080 )
