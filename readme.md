@@ -1,5 +1,5 @@
 
-![microbi](http://lignixz.github.io/microbi/img/microbi.png)
+![microbi](http://xzzulz.github.io/microbi/img/microbi.png)
 
 # microbi.js
 v0.4.4 (beta)
